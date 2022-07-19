@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello MachineController!{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+
+<div class="example-wrapper">
+    <h1 style="text-align: center">Hello {{ controller_name }}! ✅</h1>
+
+
+</div>
+{% endblock %}
+{% block content %}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+    {% for machine in data %}
+
+        <div class="col">
+            <div class="card shadow-sm  "
+{#                 style="width: 30rem;"#}
+            >
+                <img class="bd-placeholder-img card-img-top" width="100%" height="100%"  src="{{ asset('./images/computer.jpeg') }}"/>
+
+                <div class="card-body">
+                    <p class="card-text">This is a machine # {{ machine.id }} .</p>
+                    <p class="card-text">CPU: {{machine.cpu }} </p>
+                    <p class="card-text">RAM: {{ machine.ram }}</p>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="btn-group">
+                            <a href="{{ path('show_machine',{'id':machine.id}) }}" class="btn btn-sm btn-outline-secondary">View</a>
+                            <a href="{{ path('edit_machine',{'id':machine.id}) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+
+                        </div>
+{#                        <small class="text-muted">9 mins</small>#}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% endfor%}
+
+    </div>
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="btn-group">
+            <a href="{{path('add_machine')}}" class="btn btn-secondary btn-sm">Add New</a>
+        </div>
+        {#                        <small class="text-muted">9 mins</small>#}
+    </div>
+{% endblock %}

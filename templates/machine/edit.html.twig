@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <div class="col d-flex justify-content-center">
+        <div >
+            <img class="d-flex justify-content-center"
+
+                 src="{{ asset('./images/computer.jpeg') }}"/>
+
+            <div class="d-flex justify-content-center">
+
+                <p class="card-text">Now you can change smthng in machine # <b>{{ data[0].id }}</b>.</p>
+            </div>
+            <div class="d-flex justify-content-center">
+
+                {{ form_start(form) }}
+                <div class="mt-2">
+                    {{ form_row(form.cpu,{attr: {  value:data[0].cpu } }) }}
+                </div>
+                <div class="mt-2">
+                    {{ form_row(form.ram, {attr: {  value:data[0].ram } }) }}
+                </div>
+
+
+                <input class=" btn btn-success mt-3" type="submit" name="submit" value="Change">
+                {{ form_start(form) }}
+            </div>
+
+
+        </div>
+    </div>
+
+
+{% endblock %}
+
