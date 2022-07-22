@@ -8,6 +8,15 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ProcessRepository::class)]
 class Process
 {
+//    /**
+//     * @ORM\ManyToOne(targetEntity="Machine", inversedBy="machine")
+//     * @ORM\JoinColumns({
+//     *   @ORM\JoinColumn(name="id_machine", referencedColumnName="id")
+//     * })
+//     */
+//    public $process;
+
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column()]

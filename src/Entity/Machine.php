@@ -8,6 +8,12 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: MachineRepository::class)]
 class Machine
 {
+//    /**
+//     * @ORM\OneToMany(targetEntity="App\Entity\Process", mappedBy="process", fetch="EXTRA_LAZY")
+//     */
+//    public $machine;
+
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column()]

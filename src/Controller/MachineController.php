@@ -27,7 +27,8 @@ class MachineController extends AbstractController
     public function show_machine(ManagerRegistry $doctrine, $id): Response
     {
         $entityManager = $doctrine->getRepository(Machine::class)->findBy(['id' => $id]);
-        return $this->render('machine/show.html.twig', [
+        return
+            $this->render('machine/show.html.twig', [
             'controller_name' => 'MachineController',
             'data' => $entityManager,
         ]);
@@ -42,8 +43,10 @@ class MachineController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $ram = $form->getData()->getRam();
             $cpu = $form->getData()->getCpu();
+
+
             $entityManager = $doctrine->getManager();
-            $machine->setCpu($cpu)->setRam($ram);
+            $machine->setCpu($cpu)->setRam($ram)->setCpuRemaind($cpu)->setRamRemaind($ram);
             $entityManager->persist($machine);
             $entityManager->flush();
             return $this->redirect('/all_machine');
@@ -70,21 +73,38 @@ class MachineController extends AbstractController
     #[Route('/edit_machine/{id}', name: 'edit_machine')]
     public function edit_machine(Request $request, ManagerRegistry $doctrine,$id): Response
     {
-        $machine = new Machine();
-        $form = $this->createForm(AddMachineFormType::class, $machine);
+        $customer = $doctrine->getRepository(Machine::class)->findOneBy(['id' => $id]);
+////        $entityManager = $doctrine->getRepository(Machine::class)->findBy(['id' => $id]);
+//        $machine = new Machine();
+
+//        dump($customer);die();
+        $form = $this->createForm(AddMachineFormType::class, $customer);
         $form->handleRequest($request);
-//        if ($form->isSubmitted() && $form->isValid()) {
-//            $ram = $form->getData()->getRam();
-//            $cpu = $form->getData()->getCpu();
-//            $entityManager = $doctrine->getManager();
-//            $machine->setCpu($cpu)->setRam($ram);
-//            $entityManager->persist($machine);
-//            $entityManager->flush();
-//            return $this->redirect('/machine/{id}');
-//        }
-        $entityManager = $doctrine->getRepository(Machine::class)->findBy(['id' => $id]);
+//        dump($form);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $ram = $form->getData()->getRam();
+            $cpu = $form->getData()->getCpu();
+
+            $cr=$form->getData()->getCpuRemaind();
+            $cpu_remaind= $cr+ ($cpu-$cr);
+//            dump($cpu_remaind);
+            $rr=$form->getData()->getRamRemaind();
+            $ram_remaind= $rr+ ($ram-$rr);
+//            dump($ram_remaind);
+//            dump($customer);die();
+
+            $entityManager = $doctrine->getManager();
+
+
+            $customer->setCpu($cpu)->setRam($ram)->setCpuRemaind($cpu_remaind)->setRamRemaind($ram_remaind);
+            $entityManager->persist($customer);
+            $entityManager->flush();
+            return $this->redirect('/all_machine');
+        }
+        $customer = $doctrine->getRepository(Machine::class)->findBy(['id' => $id]);
+//        dump($customer);die();
         return $this->render('machine/edit.html.twig', array(
-            'form' => $form->createView(),'data'=>$entityManager
+            'form' => $form->createView(),'data'=>$customer
         ));
     }
 

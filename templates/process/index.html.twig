@@ -9,7 +9,7 @@
 </style>
 
 <div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+    <h1>{{ controller_name }}! ✅</h1>
 {#    {{ dump(processes) }}#}
 
 </div>
@@ -37,7 +37,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="btn-group">
                                 <a href="{{ path('show_process', {'id':process.id}) }}" class="btn btn-sm btn-outline-secondary">View</a>
-                                <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+{#                                <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>#}
                             </div>
 {#                            <small class="text-muted">9 mins</small>#}
                         </div>
@@ -46,5 +46,11 @@
             </div>
 
         {% endfor%}
+    </div>
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="btn-group">
+            <a href="{{path('add_process')}}" class="btn btn-secondary btn-sm">Add New</a>
+        </div>
+        {#                        <small class="text-muted">9 mins</small>#}
     </div>
 {% endblock %}

@@ -2,6 +2,8 @@
 
 {% block body %}
 
+
+
     <div class="col d-flex justify-content-center">
         <div >
             <img class="d-flex justify-content-center"
@@ -21,6 +23,14 @@
                 <div class="mt-2">
                     {{ form_row(form.ram, {attr: {  value:data[0].ram } }) }}
                 </div>
+                <div class="mt-2 visually-hidden">
+                    {{ form_row(form.ram_remaind, {attr: {  value:data[0].ram } }) }}
+                </div>
+                <div class="mt-2 visually-hidden">
+                    {{ form_row(form.cpu_remaind, {attr: {  value:data[0].cpu } }) }}
+                </div>
+
+
 
 
                 <input class=" btn btn-success mt-3" type="submit" name="submit" value="Change">
