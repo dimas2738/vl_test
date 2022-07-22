@@ -8,13 +8,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ProcessRepository::class)]
 class Process
 {
-//    /**
-//     * @ORM\ManyToOne(targetEntity="Machine", inversedBy="machine")
-//     * @ORM\JoinColumns({
-//     *   @ORM\JoinColumn(name="id_machine", referencedColumnName="id")
-//     * })
-//     */
-//    public $process;
 
 
     #[ORM\Id]
@@ -28,8 +21,10 @@ class Process
     #[ORM\Column]
     private ?int $ram_need = null;
 
-    #[ORM\Column]
-    private ?int $id_machine = null;
+    #[ORM\ManyToOne(inversedBy: 'processes')]
+    private ?Machine $machine = null;
+
+
 
     public function getId(): ?int
     {
@@ -60,15 +55,17 @@ class Process
         return $this;
     }
 
-    public function getIdMachine(): ?int
+    public function getMachine(): Machine
     {
-        return $this->id_machine;
+        return $this->machine;
     }
 
-    public function setIdMachine(int $id_machine): self
+    public function setMachine(Machine $machine): self
     {
-        $this->id_machine = $id_machine;
+        $this->machine = $machine->getId();
 
         return $this;
     }
+
+
 }

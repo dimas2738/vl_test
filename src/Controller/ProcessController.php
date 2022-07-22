@@ -19,6 +19,8 @@ class ProcessController extends AbstractController
     {
 
         $entityManager=$doctrine->getRepository(Process::class)->findAll();
+        dump($entityManager);
+//        die();
 
 
         return $this->render('process/index.html.twig', [
@@ -47,26 +49,13 @@ class ProcessController extends AbstractController
     {
 
 
-//        $customer = $doctrine->getRepository(Machine::class)->findOneBy(['id' => $id]);
-
-
-
-//        return $this->createQueryBuilder('genus')
-//            ->andWhere('genus.isPublished = :isPublished')
-//            ->setParameter('isPublished', true)
-//            ->leftJoin('genus.notes', 'genus_note')
-//            ->orderBy('genus_note.createdAt', 'DESC')
-////            ->leftJoin('genus.genusScientists', 'genusScientist')
-////            ->addSelect('genusScientist')
-//            ->getQuery()
-//            ->execute();
-
-
 
 
         $process = new Process();
         $form = $this->createForm(AddProcessType::class, $process);
         $form->handleRequest($request);
+//        dump($form);
+//        die();
         if ($form->isSubmitted() && $form->isValid()) {
             $ram_need = $form->getData()->getRamNeed();
             $cpu_need = $form->getData()->getCpuNeed();
@@ -78,7 +67,7 @@ class ProcessController extends AbstractController
             ->getQuery()->execute();
 
 
-//            dump($machine_for_process);
+//            dump($machine);die();
 
             $res=count($machine);
             if ($res<=0){
@@ -91,15 +80,22 @@ class ProcessController extends AbstractController
 
             else{
                 $machine_for_process=$machine[0]->getId();
+//                dump($machine_for_process);
+//                die();
                 $entityManager = $doctrine->getManager();
-                $process->setRamNeed($ram_need)->setCpuNeed($cpu_need)->setIdMachine($machine_for_process);
+//                dump($entityManager);die();
+
+//                $machine=new Machine();
+                $process->setRamNeed($ram_need)->setCpuNeed($cpu_need)->setMachine(Machine::class);
                 $entityManager->persist($process);
-                $entityManager->flush();
+//                dump($entityManager);die();
+//                $entityManager->flush();
                 return $this->redirect('/process');
             }
 
 
         }
+//        dump($form);die();
         return $this->render('process/add.html.twig', array(
             'form' => $form->createView()
         ));

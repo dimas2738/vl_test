@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\MachineRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MachineRepository::class)]
@@ -30,6 +32,16 @@ class Machine
 
     #[ORM\Column]
     private ?int $ram_remaind = null;
+
+    #[ORM\OneToMany(mappedBy: 'machine', targetEntity: Process::class)]
+    private Collection $processes;
+
+    public function __construct()
+    {
+        $this->processes = new ArrayCollection();
+    }
+
+
 
     public function getId(): ?int
     {
@@ -83,4 +95,39 @@ class Machine
 
         return $this;
     }
+
+//
+
+/**
+ * @return Collection<int, Process>
+ */
+public function getProcesses(): Collection
+{
+    return $this->processes;
+}
+
+public function addProcess(Process $process): self
+{
+    if (!$this->processes->contains($process)) {
+        $this->processes[] = $process;
+        $process->setMachine($this);
+    }
+
+    return $this;
+}
+
+public function removeProcess(Process $process): self
+{
+    if ($this->processes->removeElement($process)) {
+        // set the owning side to null (unless already changed)
+        if ($process->getMachine() === $this) {
+            $process->setMachine(null);
+        }
+    }
+
+    return $this;
+}
+//public function __toString(){
+//    return strval($this->id);
+//}
 }
