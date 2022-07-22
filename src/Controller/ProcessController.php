@@ -79,17 +79,18 @@ class ProcessController extends AbstractController
             }
 
             else{
-                $machine_for_process=$machine[0]->getId();
+//                $machine_for_process=$machine[0]->getId();
+                $machine_for_process=$machine[0];
 //                dump($machine_for_process);
 //                die();
                 $entityManager = $doctrine->getManager();
 //                dump($entityManager);die();
 
 //                $machine=new Machine();
-                $process->setRamNeed($ram_need)->setCpuNeed($cpu_need)->setMachine(Machine::class);
+                $process->setRamNeed($ram_need)->setCpuNeed($cpu_need)->setMachine($machine_for_process);
                 $entityManager->persist($process);
 //                dump($entityManager);die();
-//                $entityManager->flush();
+                $entityManager->flush();
                 return $this->redirect('/process');
             }
 

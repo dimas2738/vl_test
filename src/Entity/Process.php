@@ -62,7 +62,7 @@ class Process
 
     public function setMachine(Machine $machine): self
     {
-        $this->machine = $machine->getId();
+        $this->machine = $machine;
 
         return $this;
     }
