@@ -19,9 +19,6 @@ class ProcessController extends AbstractController
     {
 
         $entityManager=$doctrine->getRepository(Process::class)->findAll();
-        dump($entityManager);
-//        die();
-
 
         return $this->render('process/index.html.twig', [
             'controller_name' => 'ProcessController',
@@ -33,7 +30,6 @@ class ProcessController extends AbstractController
     public function show_process(ManagerRegistry $doctrine, $id): Response
     {
 
-//
 
         $entityManager=$doctrine->getRepository(Process::class)->findBy(['id'=>$id]);
 
@@ -54,8 +50,6 @@ class ProcessController extends AbstractController
         $process = new Process();
         $form = $this->createForm(AddProcessType::class, $process);
         $form->handleRequest($request);
-//        dump($form);
-//        die();
         if ($form->isSubmitted() && $form->isValid()) {
             $ram_need = $form->getData()->getRamNeed();
             $cpu_need = $form->getData()->getCpuNeed();
@@ -67,7 +61,6 @@ class ProcessController extends AbstractController
             ->getQuery()->execute();
 
 
-//            dump($machine);die();
 
             $res=count($machine);
             if ($res<=0){
@@ -79,24 +72,26 @@ class ProcessController extends AbstractController
             }
 
             else{
-//                $machine_for_process=$machine[0]->getId();
                 $machine_for_process=$machine[0];
-//                dump($machine_for_process);
-//                die();
                 $entityManager = $doctrine->getManager();
-//                dump($entityManager);die();
-
-//                $machine=new Machine();
                 $process->setRamNeed($ram_need)->setCpuNeed($cpu_need)->setMachine($machine_for_process);
                 $entityManager->persist($process);
-//                dump($entityManager);die();
                 $entityManager->flush();
+
+                $entityManager=$doctrine->getManager();
+                $machine_cpu_remaind=$machine_for_process->getCpuRemaind();
+                $machine_ram_remaind=$machine_for_process->getRamRemaind();
+
+                $machine_for_process->setCpuRemaind($machine_cpu_remaind-$cpu_need)->setRamRemaind($machine_ram_remaind-$ram_need);
+                $entityManager->persist($machine_for_process);
+                $entityManager->flush();
+
+
                 return $this->redirect('/process');
             }
 
 
         }
-//        dump($form);die();
         return $this->render('process/add.html.twig', array(
             'form' => $form->createView()
         ));
@@ -105,8 +100,30 @@ class ProcessController extends AbstractController
     #[Route('/del_process/{id}', name: 'del_process')]
     public function del_process(ManagerRegistry $doctrine, $id): Response
     {
+        //find process by id
+        //select process cpu and ram
         $em = $doctrine->getManager();
         $entity = $doctrine->getRepository(Process::class)->findBy(['id' => $id]);
+        $procees_ram=$entity[0]->getRamNeed();
+        $procees_cpu=$entity[0]->getCpuNeed();
+
+
+        //find machine belong to process
+        //select machine remaind cpu and ram
+        $machine_id=$entity[0]->getMachine()->getId();
+        $machine = $doctrine->getRepository(Machine::class)->findBy(['id' => $machine_id]);
+        $machine_ram=$machine[0]->getRamRemaind();
+        $machine_cpu=$machine[0]->getCpuRemaind();
+
+        //set summ of ram and ram_remaind & cpu and cpu_remaind
+        //to machine remaind options
+        $entityManager=$doctrine->getManager();
+        $machine[0]->setRamRemaind($machine_ram+$procees_ram)->
+        setCpuRemaind($machine_cpu+$procees_cpu);
+        $entityManager->persist($machine[0]);
+        $entityManager->flush();
+
+
         if ($entity != null) {
             foreach ($entity as $e) {
                 $em->remove($e);

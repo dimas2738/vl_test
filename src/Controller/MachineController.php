@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Machine;
 
+use App\Entity\Process;
 use App\Form\AddMachineFormType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,9 +30,9 @@ class MachineController extends AbstractController
         $entityManager = $doctrine->getRepository(Machine::class)->findBy(['id' => $id]);
         return
             $this->render('machine/show.html.twig', [
-            'controller_name' => 'MachineController',
-            'data' => $entityManager,
-        ]);
+                'controller_name' => 'MachineController',
+                'data' => $entityManager,
+            ]);
     }
 
     #[Route('/add_machine', name: 'add_machine')]
@@ -59,52 +60,127 @@ class MachineController extends AbstractController
     #[Route('/del_machine/{id}', name: 'del_machine')]
     public function del_machine(ManagerRegistry $doctrine, $id): Response
     {
+        //find machine by id
         $em = $doctrine->getManager();
-        $entity = $doctrine->getRepository(Machine::class)->findBy(['id' => $id]);
-        if ($entity != null) {
-            foreach ($entity as $e) {
-                $em->remove($e);
+        $machine_to_del = $doctrine->getRepository(Machine::class)->findBy(['id' => $id]);
+        $machine_to_del_ram=$machine_to_del[0]->getRam();
+        $machine_to_del_cpu=$machine_to_del[0]->getCpu();
+
+//        get processes from machine
+        $processes_to_del = $machine_to_del[0]->getProcesses();
+//        dump($processes_to_del);die();
+
+        // if machine have process
+        if (count($processes_to_del)>=1){
+
+            $del=[];
+
+            foreach ($processes_to_del as $process_to_del) {
+                $process_to_del_cpu_need = $process_to_del->getCpuNeed();
+                $process_to_del_ram_need = $process_to_del->getRamNeed();
+
+                //find from all machines good for processes from del_machine
+
+                $machine = $doctrine->getRepository(Machine::class)->createQueryBuilder('machine')
+                    ->andWhere("machine.cpu_remaind >= $process_to_del_cpu_need")->andWhere("machine.ram_remaind >=  $process_to_del_ram_need")
+                    ->orderBy('machine.cpu_remaind', 'DESC')->setMaxResults(1)
+                    ->getQuery()->execute();
+
+//            if find machine?
+                if (count($machine)>=1){
+                    $machine_ram_remaind=$machine[0]->getRamRemaind();
+                    $machine_cpu_remaind=$machine[0]->getCpuRemaind();
+
+
+//machine[0]-good machine for process
+                    $entityManager=$doctrine->getManager();
+                    $machine[0]->
+                    setRamRemaind( $machine_ram_remaind - $process_to_del_ram_need)->
+                    setCpuRemaind($machine_cpu_remaind -  $process_to_del_cpu_need)->addProcess($process_to_del);
+                    $entityManager->persist($machine[0]);
+                    $entityManager->flush();
+//machine_to_del[0]-past machine for process
+                    $entityManager=$doctrine->getManager();
+                    $machine_to_del[0] ->removeProcess($process_to_del);
+//->setCpuRemaind($machine_to_del_cpu+ $process_to_del_cpu_need)->
+//                    setRamRemaind($machine_to_del_ram+ $process_to_del_ram_need);
+
+                    $entityManager->persist( $machine_to_del[0]);
+                    $entityManager->flush();
+////                    $entityManager->remove($machine_to_del[0]);
+////                    $entityManager->flush();
+//
+//                    return $this->redirect('/all_machine');
+
+                }
+
+                //if not find machine
+                else {
+//                    $machine[0]_
+                    return $this->render('machine/show.html.twig', [
+                        'controller_name' => 'MachineController',
+                        'error' => "SORRY you can't delete a machine, as only it can run process no.",
+                    ]);
+                }
             }
-            $em->flush();
+
+
         }
+//
+        $entityManager=$doctrine->getManager();
+        $entityManager->remove($machine_to_del[0]);
+        $entityManager->flush();
+
         return $this->redirect('/all_machine');
     }
 
+
+
     #[Route('/edit_machine/{id}', name: 'edit_machine')]
-    public function edit_machine(Request $request, ManagerRegistry $doctrine,$id): Response
+    public function edit_machine(Request $request, ManagerRegistry $doctrine, $id): Response
     {
-        $customer = $doctrine->getRepository(Machine::class)->findOneBy(['id' => $id]);
-////        $entityManager = $doctrine->getRepository(Machine::class)->findBy(['id' => $id]);
-//        $machine = new Machine();
+        $machine = $doctrine->getRepository(Machine::class)->findOneBy(['id' => $id]);
 
-//        dump($customer);die();
-        $form = $this->createForm(AddMachineFormType::class, $customer);
+        $ram_machine = $machine->getRam();
+        $cpu_machine = $machine->getCpu();
+//        dump($ram_machine,$ram_machine);
+        $ram_remaind = $machine->getRamRemaind();
+        $cpu_remaind = $machine->getCpuRemaind();
+
+        $form = $this->createForm(AddMachineFormType::class, $machine);
         $form->handleRequest($request);
-//        dump($form);
         if ($form->isSubmitted() && $form->isValid()) {
-            $ram = $form->getData()->getRam();
-            $cpu = $form->getData()->getCpu();
 
-            $cr=$form->getData()->getCpuRemaind();
-            $cpu_remaind= $cr+ ($cpu-$cr);
-//            dump($cpu_remaind);
-            $rr=$form->getData()->getRamRemaind();
-            $ram_remaind= $rr+ ($ram-$rr);
-//            dump($ram_remaind);
-//            dump($customer);die();
+            //get data from form
+            $ram_form = $form->getData()->getRam();
+            $cpu_form = $form->getData()->getCpu();
+            //get data from machine
 
+            //get fact
+//            $ram_machine = $machine->getRam();
+//            $cpu_machine = $machine->getCpu();
+
+
+//            //get remaind
+//            $ram_remaind = $machine->getRamRemaind();
+//            $cpu_remaind = $machine->getCpuRemaind();
+
+            //make new data
+            $new_cpu_remaind = $cpu_form - $cpu_machine + $cpu_remaind;
+            $new_ram_remaind = $ram_form - $ram_machine + $ram_remaind;
+//            dump($new_cpu_remaind,$new_ram_remaind);die();
+
+
+            //execute
             $entityManager = $doctrine->getManager();
-
-
-            $customer->setCpu($cpu)->setRam($ram)->setCpuRemaind($cpu_remaind)->setRamRemaind($ram_remaind);
-            $entityManager->persist($customer);
+            $machine->setCpu($cpu_form)->setRam($ram_form)->setCpuRemaind($new_cpu_remaind)->setRamRemaind($new_ram_remaind);
+            $entityManager->persist($machine);
             $entityManager->flush();
             return $this->redirect('/all_machine');
         }
         $customer = $doctrine->getRepository(Machine::class)->findBy(['id' => $id]);
-//        dump($customer);die();
         return $this->render('machine/edit.html.twig', array(
-            'form' => $form->createView(),'data'=>$customer
+            'form' => $form->createView(), 'data' => $customer
         ));
     }
 

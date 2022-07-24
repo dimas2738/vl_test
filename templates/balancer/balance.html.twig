@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello BalancerController!{% endblock %}
+
+{% block body %}
+
+    <h1 style="text-align: center">Hello {{ controller_name }}! ✅</h1>
+
+    <div class="text-center">
+        <img class="rounded" width="10%" height="10%" src="{{ asset('./images/balance.png') }}"/>
+
+    </div>
+
+
+{% endblock %}
+{% block content %}
+    {% if not_changed_data is defined %}
+    <h1 style="text-align: center">Without changes:</h1>
+    <div class="row-cols-1 row-cols-sm-2 row-cols-md-5 g-5" style="width: 50%;height: 50%;align-items: center;display: flex;  ">
+        {% for key,value in not_changed_data %}
+
+            <div class="col" style="margin-left: 4px">
+                <div class="card shadow-sm">
+                    <a href="{{ path('show_machine',{'id':key}) }}">
+                        <img class="bd-placeholder-img card-img-top" width="100%" height="100%"  src="{{ asset('./images/computer.jpeg') }}"/>
+
+                    </a>
+
+                    <div class="card-body">
+                        <p class="card-text">This is a machine # {{ key }} .</p>
+                        <p class="card-text">Process_counts : {{ value[0] }} </p>
+                        <p class="card-text"> % of all cpu : {{ value[1] }}</p>
+                        <p class="card-text"> % of all ram : {{ value[2] }} </p>
+                        {#                        <p class="card-text">RAM: {{ machine.ram }}</p>#}
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% endfor%}
+
+    </div>
+
+    {% else %}
+        <h1>all machines stay the same</h1>
+
+    {% endif %}
+
+    <h1 style="text-align: center">With changes:</h1>
+
+    <div class="row-cols-1 row-cols-sm-2 row-cols-md-5 g-5" style="width: 50%;height: 50%;align-items: center;display: flex;  ">
+        {% for key,value in data %}
+
+            <div class="col" style="margin-left: 4px">
+                <div class="card shadow-sm">
+                    <a href="{{ path('show_machine',{'id':key}) }}">
+                        <img class="bd-placeholder-img card-img-top" width="100%" height="100%"  src="{{ asset('./images/computer.jpeg') }}"/>
+
+                    </a>
+
+                    <div class="card-body">
+                        <p class="card-text">This is a machine # {{ key }} .</p>
+                        <p class="card-text">Process_counts : {{ value[0] }} </p>
+                        <p class="card-text"> % of all cpu : {{ value[1] }}</p>
+                        <p class="card-text"> % of all ram : {{ value[2] }} </p>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+
+                            </div>
+                            {#                        <small class="text-muted">9 mins</small>#}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% endfor%}
+
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center">
+    </div>
+{% endblock %}

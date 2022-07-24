@@ -10,10 +10,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: MachineRepository::class)]
 class Machine
 {
-//    /**
-//     * @ORM\OneToMany(targetEntity="App\Entity\Process", mappedBy="process", fetch="EXTRA_LAZY")
-//     */
-//    public $machine;
 
 
     #[ORM\Id]
@@ -96,6 +92,8 @@ class Machine
         return $this;
     }
 
+
+
 //
 
 /**
@@ -127,7 +125,7 @@ public function removeProcess(Process $process): self
 
     return $this;
 }
-//public function __toString(){
-//    return strval($this->id);
-//}
+
+
+
 }

@@ -7,9 +7,45 @@
     <h1 style="text-align: center">Hello {{ controller_name }}! ✅</h1>
 
     <div class="text-center">
-        <img class="rounded"  width="20%" height="20%"  src="{{ asset('./images/balance.png') }}"/>
+        <img class="rounded" width="10%" height="10%" src="{{ asset('./images/balance.png') }}"/>
 
     </div>
 
 
+{% endblock %}
+{% block content %}
+    <a href="{{ path('balance') }}" class="btn btn-success btn-sm " style="margin-bottom: 20px">ReBalance</a>
+
+    <div class="row-cols-1 row-cols-sm-2 row-cols-md-5 g-5"
+         style="width: 50%;height: 50%;align-items: center;display: flex;  ">
+        {% for key,value in data %}
+
+            <div class="col" style="margin-left: 4px">
+                <div class="card shadow-sm">
+                    <a href="{{ path('show_machine',{'id':key}) }}">
+                        <img class="bd-placeholder-img card-img-top" width="100%" height="100%"
+                             src="{{ asset('./images/computer.jpeg') }}"/>
+
+                    </a>
+
+                    <div class="card-body">
+                        <p class="card-text">This is a machine # {{ key }} .</p>
+                        <p class="card-text">Process_counts : {{ value[0] }} </p>
+                        <p class="card-text"> % of all cpu : {{ value[1] }}</p>
+                        <p class="card-text"> % of all ram : {{ value[2] }} </p>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% endfor %}
+
+    </div>
+    <div class="d-flex justify-content-between align-items-center">
+    </div>
 {% endblock %}
