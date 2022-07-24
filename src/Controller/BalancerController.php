@@ -53,12 +53,6 @@ class BalancerController extends AbstractController
             $entityManager = $doctrine->getManager();
             $machine->setCpuRemaind($machine->getCpu());
             $machine->setCpuRemaind($machine->getCpu());
-//            foreach ($machine->getProcesses() as $m){
-//                $machine->removeProcess($m);
-//                $m->setMachine($machine);
-////                dump($m);die();
-//            }
-//            $machine->removeProcess();
             $machine->setRamRemaind($machine->getRam());
             $entityManager->persist($machine);
             $entityManager->flush();
@@ -140,6 +134,7 @@ class BalancerController extends AbstractController
         }
         $machines_after_balance_without_changes=[];
         foreach ($not_changed_machines as $machine){
+            $processes_count='changes';
             $machine_cpu_remaind = $machine[0]->getCpuRemaind();
             $machine_ram_remaind = $machine[0]->getRamRemaind();
             $machine_cpu = $machine[0]->getCpu();

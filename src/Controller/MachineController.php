@@ -62,18 +62,38 @@ class MachineController extends AbstractController
     {
         //find machine by id
         $em = $doctrine->getManager();
+        $is_it_last_machine=$doctrine->getRepository(Machine::class)->findAll();
+//        dump(count($is_it_last_machine));
+//        dump(count($is_it_last_machine));
+//        die();
+
+
+        if (($is_it_last_machine[0]->getProcesses()->isEmpty())==1 and  count($is_it_last_machine)==1 ){
+            $error='no more machines!';
+
+            $entityManager = $doctrine->getManager();
+            $entityManager->remove($is_it_last_machine[0]);
+            $entityManager->flush();
+
+
+            return $this->render('machine/show.html.twig', [
+                'controller_name' => 'MachineController',
+                'error'=>$error
+
+            ]);
+        }
+        else{
+
         $machine_to_del = $doctrine->getRepository(Machine::class)->findBy(['id' => $id]);
-        $machine_to_del_ram=$machine_to_del[0]->getRam();
-        $machine_to_del_cpu=$machine_to_del[0]->getCpu();
+//        $machine_to_del_ram=$machine_to_del[0]->getRam();
+//        $machine_to_del_cpu=$machine_to_del[0]->getCpu();
 
 //        get processes from machine
         $processes_to_del = $machine_to_del[0]->getProcesses();
 //        dump($processes_to_del);die();
 
         // if machine have process
-        if (count($processes_to_del)>=1){
-
-            $del=[];
+        if (count($processes_to_del) >= 1) {
 
             foreach ($processes_to_del as $process_to_del) {
                 $process_to_del_cpu_need = $process_to_del->getCpuNeed();
@@ -87,39 +107,34 @@ class MachineController extends AbstractController
                     ->getQuery()->execute();
 
 //            if find machine?
-                if (count($machine)>=1){
-                    $machine_ram_remaind=$machine[0]->getRamRemaind();
-                    $machine_cpu_remaind=$machine[0]->getCpuRemaind();
+                if (count($machine) >= 1) {
+                    $machine_ram_remaind = $machine[0]->getRamRemaind();
+                    $machine_cpu_remaind = $machine[0]->getCpuRemaind();
 
 
 //machine[0]-good machine for process
-                    $entityManager=$doctrine->getManager();
+                    $entityManager = $doctrine->getManager();
                     $machine[0]->
-                    setRamRemaind( $machine_ram_remaind - $process_to_del_ram_need)->
-                    setCpuRemaind($machine_cpu_remaind -  $process_to_del_cpu_need)->addProcess($process_to_del);
+                    setRamRemaind($machine_ram_remaind - $process_to_del_ram_need)->
+                    setCpuRemaind($machine_cpu_remaind - $process_to_del_cpu_need)->addProcess($process_to_del);
                     $entityManager->persist($machine[0]);
                     $entityManager->flush();
+
 //machine_to_del[0]-past machine for process
-                    $entityManager=$doctrine->getManager();
-                    $machine_to_del[0] ->removeProcess($process_to_del);
+                    $entityManager = $doctrine->getManager();
+                    $machine_to_del[0]->removeProcess($process_to_del);
 //->setCpuRemaind($machine_to_del_cpu+ $process_to_del_cpu_need)->
 //                    setRamRemaind($machine_to_del_ram+ $process_to_del_ram_need);
 
-                    $entityManager->persist( $machine_to_del[0]);
+                    $entityManager->persist($machine_to_del[0]);
                     $entityManager->flush();
-////                    $entityManager->remove($machine_to_del[0]);
-////                    $entityManager->flush();
-//
-//                    return $this->redirect('/all_machine');
 
-                }
-
-                //if not find machine
+                } //if not find machine
                 else {
-//                    $machine[0]_
+                    $error="SORRY you can't delete a machine, as only it can run processes! Delete process first!";
                     return $this->render('machine/show.html.twig', [
                         'controller_name' => 'MachineController',
-                        'error' => "SORRY you can't delete a machine, as only it can run process no.",
+                        'error' => $error
                     ]);
                 }
             }
@@ -127,13 +142,12 @@ class MachineController extends AbstractController
 
         }
 //
-        $entityManager=$doctrine->getManager();
+        $entityManager = $doctrine->getManager();
         $entityManager->remove($machine_to_del[0]);
         $entityManager->flush();
-
         return $this->redirect('/all_machine');
     }
-
+    }
 
 
     #[Route('/edit_machine/{id}', name: 'edit_machine')]
