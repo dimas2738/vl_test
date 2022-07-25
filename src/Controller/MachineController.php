@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Machine;
 
-use App\Entity\Process;
+
 use App\Form\AddMachineFormType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -45,7 +45,6 @@ class MachineController extends AbstractController
             $ram = $form->getData()->getRam();
             $cpu = $form->getData()->getCpu();
 
-
             $entityManager = $doctrine->getManager();
             $machine->setCpu($cpu)->setRam($ram)->setCpuRemaind($cpu)->setRamRemaind($ram);
             $entityManager->persist($machine);
@@ -63,10 +62,6 @@ class MachineController extends AbstractController
         //find machine by id
         $em = $doctrine->getManager();
         $is_it_last_machine=$doctrine->getRepository(Machine::class)->findAll();
-//        dump(count($is_it_last_machine));
-//        dump(count($is_it_last_machine));
-//        die();
-
 
         if (($is_it_last_machine[0]->getProcesses()->isEmpty())==1 and  count($is_it_last_machine)==1 ){
             $error='no more machines!';
@@ -75,22 +70,17 @@ class MachineController extends AbstractController
             $entityManager->remove($is_it_last_machine[0]);
             $entityManager->flush();
 
-
             return $this->render('machine/show.html.twig', [
                 'controller_name' => 'MachineController',
                 'error'=>$error
-
             ]);
         }
         else{
 
         $machine_to_del = $doctrine->getRepository(Machine::class)->findBy(['id' => $id]);
-//        $machine_to_del_ram=$machine_to_del[0]->getRam();
-//        $machine_to_del_cpu=$machine_to_del[0]->getCpu();
 
-//        get processes from machine
+        // get processes from machine
         $processes_to_del = $machine_to_del[0]->getProcesses();
-//        dump($processes_to_del);die();
 
         // if machine have process
         if (count($processes_to_del) >= 1) {
@@ -100,19 +90,17 @@ class MachineController extends AbstractController
                 $process_to_del_ram_need = $process_to_del->getRamNeed();
 
                 //find from all machines good for processes from del_machine
-
                 $machine = $doctrine->getRepository(Machine::class)->createQueryBuilder('machine')
                     ->andWhere("machine.cpu_remaind >= $process_to_del_cpu_need")->andWhere("machine.ram_remaind >=  $process_to_del_ram_need")
                     ->orderBy('machine.cpu_remaind', 'DESC')->setMaxResults(1)
                     ->getQuery()->execute();
 
-//            if find machine?
+                // if find machine?
                 if (count($machine) >= 1) {
                     $machine_ram_remaind = $machine[0]->getRamRemaind();
                     $machine_cpu_remaind = $machine[0]->getCpuRemaind();
 
-
-//machine[0]-good machine for process
+                    //machine[0]-good machine for process
                     $entityManager = $doctrine->getManager();
                     $machine[0]->
                     setRamRemaind($machine_ram_remaind - $process_to_del_ram_need)->
@@ -120,12 +108,9 @@ class MachineController extends AbstractController
                     $entityManager->persist($machine[0]);
                     $entityManager->flush();
 
-//machine_to_del[0]-past machine for process
+                    //machine_to_del[0]-past machine for process
                     $entityManager = $doctrine->getManager();
                     $machine_to_del[0]->removeProcess($process_to_del);
-//->setCpuRemaind($machine_to_del_cpu+ $process_to_del_cpu_need)->
-//                    setRamRemaind($machine_to_del_ram+ $process_to_del_ram_need);
-
                     $entityManager->persist($machine_to_del[0]);
                     $entityManager->flush();
 
@@ -138,10 +123,7 @@ class MachineController extends AbstractController
                     ]);
                 }
             }
-
-
         }
-//
         $entityManager = $doctrine->getManager();
         $entityManager->remove($machine_to_del[0]);
         $entityManager->flush();
@@ -154,10 +136,8 @@ class MachineController extends AbstractController
     public function edit_machine(Request $request, ManagerRegistry $doctrine, $id): Response
     {
         $machine = $doctrine->getRepository(Machine::class)->findOneBy(['id' => $id]);
-
         $ram_machine = $machine->getRam();
         $cpu_machine = $machine->getCpu();
-//        dump($ram_machine,$ram_machine);
         $ram_remaind = $machine->getRamRemaind();
         $cpu_remaind = $machine->getCpuRemaind();
 
@@ -170,20 +150,9 @@ class MachineController extends AbstractController
             $cpu_form = $form->getData()->getCpu();
             //get data from machine
 
-            //get fact
-//            $ram_machine = $machine->getRam();
-//            $cpu_machine = $machine->getCpu();
-
-
-//            //get remaind
-//            $ram_remaind = $machine->getRamRemaind();
-//            $cpu_remaind = $machine->getCpuRemaind();
-
             //make new data
             $new_cpu_remaind = $cpu_form - $cpu_machine + $cpu_remaind;
             $new_ram_remaind = $ram_form - $ram_machine + $ram_remaind;
-//            dump($new_cpu_remaind,$new_ram_remaind);die();
-
 
             //execute
             $entityManager = $doctrine->getManager();
@@ -197,5 +166,4 @@ class MachineController extends AbstractController
             'form' => $form->createView(), 'data' => $customer
         ));
     }
-
 }

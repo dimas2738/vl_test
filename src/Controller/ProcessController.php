@@ -17,7 +17,6 @@ class ProcessController extends AbstractController
     #[Route('/process', name: 'all_processes')]
     public function index(ManagerRegistry $doctrine): Response
     {
-
         $entityManager=$doctrine->getRepository(Process::class)->findAll();
 
         return $this->render('process/index.html.twig', [
@@ -29,11 +28,7 @@ class ProcessController extends AbstractController
     #[Route('/process/{id}', name: 'show_process')]
     public function show_process(ManagerRegistry $doctrine, $id): Response
     {
-
-
         $entityManager=$doctrine->getRepository(Process::class)->findBy(['id'=>$id]);
-
-
         return $this->render('process/show.html.twig', [
             'controller_name' => 'ProcessController',
             'processes' => $entityManager,
@@ -43,10 +38,6 @@ class ProcessController extends AbstractController
     #[Route('/add_process', name: 'add_process')]
     public function add_process(Request $request, ManagerRegistry $doctrine): Response
     {
-
-
-
-
         $process = new Process();
         $form = $this->createForm(AddProcessType::class, $process);
         $form->handleRequest($request);
@@ -59,8 +50,6 @@ class ProcessController extends AbstractController
                 ->andWhere("machine.cpu_remaind >= $cpu_need")->andWhere("machine.ram_remaind >=  $ram_need")
                 ->orderBy('machine.cpu_remaind', 'DESC') ->setMaxResults( 1 )
             ->getQuery()->execute();
-
-
 
             $res=count($machine);
             if ($res<=0){
@@ -86,11 +75,8 @@ class ProcessController extends AbstractController
                 $entityManager->persist($machine_for_process);
                 $entityManager->flush();
 
-
                 return $this->redirect('/process');
             }
-
-
         }
         return $this->render('process/add.html.twig', array(
             'form' => $form->createView()
@@ -107,7 +93,6 @@ class ProcessController extends AbstractController
         $procees_ram=$entity[0]->getRamNeed();
         $procees_cpu=$entity[0]->getCpuNeed();
 
-
         //find machine belong to process
         //select machine remaind cpu and ram
         $machine_id=$entity[0]->getMachine()->getId();
@@ -123,7 +108,6 @@ class ProcessController extends AbstractController
         $entityManager->persist($machine[0]);
         $entityManager->flush();
 
-
         if ($entity != null) {
             foreach ($entity as $e) {
                 $em->remove($e);
@@ -132,5 +116,4 @@ class ProcessController extends AbstractController
         }
         return $this->redirect('/process');
     }
-
 }

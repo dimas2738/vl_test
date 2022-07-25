@@ -1,19 +1,14 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-
     <div class="col d-flex justify-content-center">
         <div >
             <img class="d-flex justify-content-center"
-
                  src="{{ asset('./images/process.jpeg') }}"/>
-
             <div class="d-flex justify-content-center">
-
                 <p class="card-text">This will be a NEW process.</p>
             </div>
             <div class="d-flex justify-content-center">
-
                 {{ form_start(form) }}
                 <div class="mt-2">
                     {{ form_row(form.cpu_need) }}
@@ -21,13 +16,9 @@
                 <div class="mt-2">
                     {{ form_row(form.ram_need) }}
                 </div>
-
-
                 <input class=" btn btn-success mt-3" type="submit" name="submit" value="Create">
                 {{ form_start(form) }}
             </div>
-
-
         </div>
     </div>
 

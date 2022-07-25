@@ -14,8 +14,6 @@ class BalancerController extends AbstractController
     #[Route('/', name: 'app_balancer')]
     public function index(ManagerRegistry $doctrine): Response
     {
-        $count_amount_ram_remaind = 0;
-        $count_amount_cpu_remaind = 0;
         $machines = $doctrine->getRepository(Machine::class)->findAll();
 
         $res = [];
@@ -29,11 +27,8 @@ class BalancerController extends AbstractController
             $procent_cpu = $machine_cpu_remaind / $machine_cpu * 100;
             $procent_ram = (int)$procent_ram;
             $procent_cpu = (int)$procent_cpu;
-
             $res[$machine->getId()] = [$processes_count, $procent_cpu, $procent_ram];
-
         }
-
         return $this->render('balancer/index.html.twig', ['controller_name' => 'BalancerController',
             'data' => $res]);
     }
@@ -41,10 +36,7 @@ class BalancerController extends AbstractController
     #[Route('/balance', name: 'balance')]
     public function balance(ManagerRegistry $doctrine): Response
     {
-        $machines_res = [];
-
         $pocesses = $doctrine->getRepository(Process::class)->findAll();
-
         $machines_after_balance = [];
         $machines = $doctrine->getRepository(Machine::class)->findAll();
 
@@ -68,14 +60,11 @@ class BalancerController extends AbstractController
                 ->orderBy('machine.cpu_remaind', 'DESC')->setMaxResults(1)
                 ->getQuery()->execute();
 
-
             foreach ($machines as $machine) {
-
 //            if find machine?
                 if (isset($machine)) {
                     $machine_ram_remaind = $machine->getRamRemaind();
                     $machine_cpu_remaind = $machine->getCpuRemaind();
-
 
 //machine[0]-good machine for process
                     $entityManager = $doctrine->getManager();
@@ -100,17 +89,12 @@ class BalancerController extends AbstractController
                 } else {
                     continue;
                 }
-
-
             }
-
         }
 
-//        $empty=[];
         $changed_machines_id = [];
         foreach ($machines_after_balance as $key => $value) {
             $changed_machines_id[] = $key;
-
         }
 
         $all_machines_id = [];
@@ -124,14 +108,15 @@ class BalancerController extends AbstractController
                 $not_changed_machines_id[] = $item;
             }
         }
+
         $not_changed_machines = [];
         foreach ($not_changed_machines_id as $i) {
             $machines_empty = $doctrine->getRepository(Machine::class)->createQueryBuilder('machine')
                 ->Where("machine.id =  $i")
                 ->getQuery()->execute();
             $not_changed_machines[] = $machines_empty;
-
         }
+
         $machines_after_balance_without_changes=[];
         foreach ($not_changed_machines as $machine){
             $processes_count='changes';
@@ -143,7 +128,6 @@ class BalancerController extends AbstractController
             $procent_cpu = $machine_cpu_remaind / $machine_cpu * 100;
             $procent_ram = (int)$procent_ram;
             $procent_cpu = (int)$procent_cpu;
-
             $machines_after_balance_without_changes[$machine[0]->getId()] = [$processes_count, $procent_cpu, $procent_ram];
         }
 
